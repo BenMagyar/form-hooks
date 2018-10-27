@@ -1,20 +1,7 @@
-# form-hooks
-
-Easily create forms in React components -- with hooks! Essentially 
-a dumbed down version of [Formik][] using hooks. There are definitely 
-some missing cases here (for instance resetting the form on value changes, 
-per field validation and validation on blur) 🤷‍♂️.
-
-## Getting Started
-
-```bash
-npm install form-hooks
-```
-
-```js
+import React from 'react';
 import { useForm } from 'form-hooks';
 
-const Sample = () => (
+export default () => {
     const {
         errors,
         touched,
@@ -28,7 +15,7 @@ const Sample = () => (
             name: '',
             email: '',
         },
-        onSubmit: values => fetch(/* with values */),
+        onSubmit: values => alert(JSON.stringify(values)),
         validate: values => ({
             ...(!values.name.length ? { name: 'Requires a name' } : {}),
             ...(!values.email.length ? { email: 'Requires an email' } : {})
@@ -37,7 +24,7 @@ const Sample = () => (
 
     return (
         <form onSubmit={handleSubmit}>
-            <input name="name"
+            <input name="name" 
                    type="text" 
                    value={values.name} 
                    onChange={handleChange}
@@ -54,7 +41,4 @@ const Sample = () => (
             <button type="submit" disabled={isSubmitting}>submit</button>
         </form>
     )
-)
-```
-
-[Formik]: https://github.com/jaredpalmer/formik 
+}

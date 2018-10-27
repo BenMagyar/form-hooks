@@ -8,7 +8,7 @@ export function useForm({
     validate,
 }) {
     const [errors, setErrors] = useState({});
-    const [values, setValue] = useState(initialValues);
+    const [values, setValues] = useState(initialValues);
     const [touched, setTouched] = useState({});
     
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -30,7 +30,7 @@ export function useForm({
             warnOnMissingName("handleBlur");
         }
 
-        setTouched({ [name]: true }, () => {
+        setTouched({ ...touched, [name]: true }, () => {
             validateField(value(event.target))
         });
     }
@@ -41,8 +41,8 @@ export function useForm({
         if (!name) {
             warnOnMissingName("handleChange");
         }
-
-        setValue({ name: value(event.target) });
+        
+        setValues({ ...values, [name]: value(event.target) });
     }
 
     function handleSubmit(event) {
@@ -51,15 +51,17 @@ export function useForm({
         setIsSubmitting(true);
         setSubmitCount(submitCount + 1);
         
-        setTouched({ ...Object.keys(values).map(k => ({ [k]: true })) });
+        const fields = [...Object.keys(values), ...Object.keys(initialValues)];
+        setTouched(Object.assign({}, ...fields.map(k => ({ [k]: true }))));
         
-        return Promise.resolve(validate)
+        return Promise.resolve(validate(values))
             .then(errors => { 
                 setErrors(errors);
                 if (!Object.keys(errors).length) {
-                    return onSubmit(values);
+                    return Promise.resolve(onSubmit(values));
                 }
             })
+            .then(() => setIsSubmitting(false))
             .catch(error => { 
                 setIsSubmitting(false)
                 return Promise.reject(error);
