@@ -75,6 +75,7 @@ export function useForm({
         handleBlur,
         handleChange,
         handleSubmit,
+        setErrors,
         isSubmitting,
         submitCount,
     }
