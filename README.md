@@ -57,4 +57,59 @@ const Sample = () => (
 )
 ```
 
+## Documentation
+
+### `useForm` - `options`
+
+The `useForm` hook takes some options (as an object) to initialize state 
+and manage form validation/submissions.
+
+#### `initialValues`
+
+An object with the forms initial values. These values should not be required.
+
+#### `onSubmit(values)`
+
+Called when a form is submitted with the values set. Only called if validation
+passes. 
+
+#### `validate(values)`
+
+Called when a form is submitted prior to the `onSubmit` call. Returns an object 
+of errors similar to `Formik`.
+
+### `useForm` - returned
+
+#### `errors`
+
+An object that contains the form errors where the key is the field name 
+and the value is the error message.
+
+#### `touched`
+
+An object that contains which form fields have been touched. The key is 
+the field name, the value is a boolean of if the field has been touched.
+
+#### `values`
+
+An object that contains all of the values of the form. Initialized with the 
+`initialValues` originally passed in. Modified by the `handleChange` handler.
+
+#### `handleBlur`
+
+Marks a field as `touched` to show errors after all fields are touched.
+
+#### `handleChange`
+
+Changes the fields value in the `values` state.
+
+#### `handleSubmit`
+
+Handles calling validation prior to the `onSubmit` handler and setting the
+`touched`, `errors` and `isSubmitting` state internally.
+
+#### `isSubmitting`
+
+Boolean value if the form is currently submitting.
+
 [Formik]: https://github.com/jaredpalmer/formik 
