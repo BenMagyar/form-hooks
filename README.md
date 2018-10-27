@@ -78,7 +78,7 @@ passes.
 Called when a form is submitted prior to the `onSubmit` call. Returns an object 
 of errors similar to `Formik`.
 
-### `useForm` - returned
+### `useForm` - `returned`
 
 #### `errors`
 
