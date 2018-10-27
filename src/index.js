@@ -6,6 +6,7 @@ export function useForm({
     initialValues,
     onSubmit,
     validate,
+    validateOnBlur = true,
 }) {
     const [errors, setErrors] = useState({});
     const [values, setValues] = useState(initialValues);
@@ -23,6 +24,16 @@ export function useForm({
             : /checkbox/.test(type) ? checked : value;
     }
 
+    function handleValidate() {
+        return Promise.resolve(validate(values))
+            .then(errors => setErrors(errors));
+    }
+
+    function shouldValidate(touchedFields) {
+        const initialFields = Object.keys(initialValues);
+        return initialFields.every(f => touchedFields.indexOf(f) > -1);
+    }
+
     function handleBlur(event) {
         const { name } = event.target;
 
@@ -30,9 +41,13 @@ export function useForm({
             warnOnMissingName("handleBlur");
         }
 
-        setTouched({ ...touched, [name]: true }, () => {
-            validateField(value(event.target))
-        });
+        setTouched({ ...touched, [name]: true });
+
+        if (validateOnBlur) {
+            if (shouldValidate([...Object.keys(touched), name])) {
+                handleValidate()
+            }
+        }
     }
 
     function handleChange(event) {
@@ -43,6 +58,10 @@ export function useForm({
         }
         
         setValues({ ...values, [name]: value(event.target) });
+
+        if (validateOnBlur && shouldValidate(Object.keys(touched))) {
+            handleValidate();
+        }
     }
 
     function handleSubmit(event) {
