@@ -1,0 +1,32 @@
+{
+  "name": "form-hooks",
+  "version": "0.1.0",
+  "description": "Easy forms in React with hooks",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BenMagyar/form-hooks.git"
+  },
+  "keywords": [
+    "react",
+    "hooks",
+    "form"
+  ],
+  "author": "Ben Magyar <me@benmagyar.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/BenMagyar/form-hooks/issues"
+  },
+  "homepage": "https://github.com/BenMagyar/form-hooks#readme",
+  "devDependencies": {
+    "react": "^16.7.0-alpha.0",
+    "react-dom": "^16.7.0-alpha.0"
+  },
+  "peerDependencies": {
+    "react": ">=16.7.0-alpha.0",
+    "react-dom": ">=16.7.0-alpha.0"    
+  }
+}
