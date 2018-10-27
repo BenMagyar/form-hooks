@@ -112,4 +112,9 @@ Handles calling validation prior to the `onSubmit` handler and setting the
 
 Boolean value if the form is currently submitting.
 
+#### `setErrors`
+
+Function that allows for errors to be set outside of the `useForm`
+internal handlers (good for handling request errors).
+
 [Formik]: https://github.com/jaredpalmer/formik 
