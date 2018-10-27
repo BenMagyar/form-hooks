@@ -73,7 +73,7 @@ An object with the forms initial values. These values should not be required.
 Called when a form is submitted with the values set. Only called if validation
 passes. 
 
-#### `validate(values)`
+#### `validate(values, errors)`
 
 Called when a form is submitted prior to the `onSubmit` call. Returns an object 
 of errors similar to `Formik`.
@@ -95,15 +95,15 @@ the field name, the value is a boolean of if the field has been touched.
 An object that contains all of the values of the form. Initialized with the 
 `initialValues` originally passed in. Modified by the `handleChange` handler.
 
-#### `handleBlur`
+#### `handleBlur()`
 
 Marks a field as `touched` to show errors after all fields are touched.
 
-#### `handleChange`
+#### `handleChange()`
 
 Changes the fields value in the `values` state.
 
-#### `handleSubmit`
+#### `handleSubmit(values)`
 
 Handles calling validation prior to the `onSubmit` handler and setting the
 `touched`, `errors` and `isSubmitting` state internally.
@@ -112,7 +112,7 @@ Handles calling validation prior to the `onSubmit` handler and setting the
 
 Boolean value if the form is currently submitting.
 
-#### `setErrors`
+#### `setErrors()`
 
 Function that allows for errors to be set outside of the `useForm`
 internal handlers (good for handling request errors).
