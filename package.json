@@ -4,7 +4,8 @@
   "description": "Easy forms in React with hooks",
   "main": "lib/index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "prepublishOnly": "rm -rf ./lib && mkdir ./lib && BABEL_ENV=commonjs babel src --out-dir lib"
   },
   "repository": {
     "type": "git",
@@ -15,6 +16,9 @@
     "hooks",
     "form"
   ],
+  "files": [
+    "lib"
+  ],
   "author": "Ben Magyar <me@benmagyar.com>",
   "license": "MIT",
   "bugs": {
@@ -22,11 +26,15 @@
   },
   "homepage": "https://github.com/BenMagyar/form-hooks#readme",
   "devDependencies": {
+    "@babel/cli": "^7.1.2",
+    "@babel/core": "^7.1.2",
+    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
+    "@babel/preset-env": "^7.1.0",
     "react": "^16.7.0-alpha.0",
     "react-dom": "^16.7.0-alpha.0"
   },
   "peerDependencies": {
     "react": ">=16.7.0-alpha.0",
-    "react-dom": ">=16.7.0-alpha.0"    
+    "react-dom": ">=16.7.0-alpha.0"
   }
 }

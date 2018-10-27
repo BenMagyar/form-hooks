@@ -2,7 +2,7 @@ import { useState } from 'react';
 
 const warnOnMissingName = f => `${f} called without a "name" on input`;
 
-export default function useForm({
+export function useForm({
     initialValues,
     onSubmit,
     validate,
