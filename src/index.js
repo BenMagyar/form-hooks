@@ -7,6 +7,7 @@ export function useForm({
     onSubmit,
     validate,
     validateOnBlur = true,
+    validateOnChange = true,
 }) {
     const [errors, setErrors] = useState({});
     const [values, setValues] = useState(initialValues);
@@ -59,7 +60,7 @@ export function useForm({
         
         setValues({ ...values, [name]: value(event.target) });
 
-        if (validateOnBlur && shouldValidate(Object.keys(touched))) {
+        if (validateOnChange && shouldValidate(Object.keys(touched))) {
             handleValidate();
         }
     }

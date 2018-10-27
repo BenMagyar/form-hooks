@@ -3,7 +3,7 @@
 Easily create forms in React components -- with hooks! Essentially 
 a dumbed down version of [Formik][] using hooks. There are definitely 
 some missing cases here (for instance resetting the form on value changes, 
-per field validation and validation on blur) 🤷‍♂️.
+per field validation and React native) 🤷‍♂️.
 
 ## Getting Started
 
@@ -77,6 +77,19 @@ passes.
 
 Called when a form is submitted prior to the `onSubmit` call. Returns an object 
 of errors similar to `Formik`.
+
+#### `validateOnBlur` - *true*
+
+Indicates if `useForm` should re-validate the input on blur.
+Only fired when all fields have been touched that were in the `initialValues`
+object.
+
+#### `validateOnChange` - *true*
+
+Indicates if `useForm` should re-validate the input on change.
+Only fired when all fields have been touched that were in the `initialValues`
+object.
+
 
 ### `useForm` - `returned`
 
