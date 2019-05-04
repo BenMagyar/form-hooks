@@ -1,0 +1,189 @@
+import { useState } from 'react';
+
+const warnOnMissingName = (f: string) =>
+  `${f} called without a "name" on input`;
+
+export type FormHookErrors<Values> = {
+  [Key in keyof Values]?: Values[Key] extends object
+    ? FormHookErrors<Values[Key]>
+    : string
+};
+
+export type FormHookTouched<Values> = {
+  [Key in keyof Values]?: Values[Key] extends object
+    ? FormHookErrors<Values[Key]>
+    : boolean
+};
+
+export type FormHookValues = {
+  [field: string]: any;
+};
+
+export interface FormHookOptions<Values> {
+  /**
+   * Initial form values
+   */
+  initialValues: Values;
+  /**
+   * Subimssion handler
+   */
+  onSubmit: (values: Values) => void;
+  /**
+   * Validation check that occurs prior to the submission handler.
+   */
+  validate: (
+    values: Values
+  ) => FormHookErrors<Values> | Promise<FormHookErrors<Values>>;
+  /**
+   * Indicates if the form should re-validate the input on blur.
+   */
+  validateOnBlur: boolean;
+  /**
+   * Indicates if the form should be re-validated on input change. Only
+   * fired when all fields have been touched that exist within the
+   * `initialValues` object.
+   */
+  validateOnChange: boolean;
+}
+
+export interface FormHookState<Values> {
+  /**
+   * Map of field names and the error of that field
+   */
+  errors: FormHookErrors<Values>;
+  /**
+   * Map of field names and if they have been touched
+   */
+  touched: FormHookTouched<Values>;
+  /**
+   * Map of field names and their values
+   */
+  values: FormHookValues;
+  /**
+   * Blur handler, marks a field as `touched`
+   */
+  handleBlur: (event: React.ChangeEvent<any>) => void;
+  /**
+   * Change handler, changes the field in the `values` state
+   */
+  handleChange: (event: React.ChangeEvent<any>) => void;
+  /**
+   * Submission handler, handle calling validation prior to the submission
+   * handler, and manging the `touched`, `errors` and `isSubmitting` state.
+   */
+  handleSubmit: (event: React.ChangeEvent<HTMLFormElement>) => Promise<void>;
+  /**
+   * Sets additional errors on the forms state
+   */
+  setErrors: (errors: FormHookErrors<Values>) => void;
+  /**
+   * Indicates if the form is currently submitting
+   */
+  isSubmitting: boolean;
+  /**
+   * Number of times the form has been submittied
+   */
+  submitCount: number;
+}
+
+export function useForm<Values>({
+  initialValues,
+  onSubmit,
+  validate,
+  validateOnBlur = true,
+  validateOnChange = true,
+}: FormHookOptions<Values>): FormHookState<Values> {
+  const [errors, setErrors] = useState({});
+  const [values, setValues] = useState(initialValues);
+  const [touched, setTouched] = useState({});
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitCount, setSubmitCount] = useState(0);
+
+  function value(event: React.ChangeEvent<any>) {
+    // normalize values as Formik would
+    // https://github.com/jaredpalmer/formik/blob/348f44a3016113d6e2b70db714739804ad0ed4c4/src/Formik.tsx#L321
+    const { checked, type, value } = event.target;
+    if (/number|range/.test(type)) {
+      const parsed = parseFloat(value);
+      return isNaN(parsed) ? '' : parsed;
+    } else if (/checkbox/.test(type)) {
+      return checked;
+    }
+    return value;
+  }
+
+  function handleValidate() {
+    return Promise.resolve(validate(values)).then(errors => setErrors(errors));
+  }
+
+  function shouldValidate(touchedFields: string[]): boolean {
+    const initialFields = Object.keys(initialValues);
+    return initialFields.every(f => touchedFields.indexOf(f) > -1);
+  }
+
+  function handleBlur(event: React.ChangeEvent<any>): void {
+    const { name } = event.target;
+
+    if (!name) {
+      warnOnMissingName('handleBlur');
+    }
+
+    setTouched({ ...touched, [name]: true });
+
+    if (validateOnBlur) {
+      if (shouldValidate([...Object.keys(touched), name])) {
+        handleValidate();
+      }
+    }
+  }
+
+  function handleChange(event: React.ChangeEvent<any>): void {
+    const { name } = event.target;
+
+    if (!name) {
+      warnOnMissingName('handleChange');
+    }
+
+    setValues({ ...values, [name]: value(event) });
+
+    if (validateOnChange && shouldValidate(Object.keys(touched))) {
+      handleValidate();
+    }
+  }
+
+  function handleSubmit(event: React.ChangeEvent<any>): Promise<void> {
+    event.preventDefault();
+
+    setIsSubmitting(true);
+    setSubmitCount(submitCount + 1);
+
+    const fields = [...Object.keys(values), ...Object.keys(initialValues)];
+    setTouched(Object.assign({}, ...fields.map(k => ({ [k]: true }))));
+
+    return Promise.resolve(validate(values))
+      .then(errors => {
+        setErrors(errors);
+        if (!Object.keys(errors).length) {
+          return Promise.resolve(onSubmit(values));
+        }
+      })
+      .then(() => setIsSubmitting(false))
+      .catch(error => {
+        setIsSubmitting(false);
+        return Promise.reject(error);
+      });
+  }
+
+  return {
+    errors,
+    touched,
+    values,
+    handleBlur,
+    handleChange,
+    handleSubmit,
+    setErrors,
+    isSubmitting,
+    submitCount,
+  };
+}
