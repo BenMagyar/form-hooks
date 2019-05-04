@@ -31,7 +31,7 @@ const Sample = () => (
             ...(!values.name.length ? { name: 'Requires a name' } : {}),
             ...(!values.email.length ? { email: 'Requires an email' } : {})
         }),
-    });
+    }, options => [options.initialValues]);
 
     return (
         <form onSubmit={handleSubmit}>
