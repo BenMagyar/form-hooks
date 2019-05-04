@@ -1,9 +1,3 @@
-# Sample form using form-hooks
+# Example Form
 
-Assumes `@compositor/x0` is installed globally.
-
-## Getting Started
-
-```bash
-npm start
-```
+Basic example of a form using `form-hooks`.

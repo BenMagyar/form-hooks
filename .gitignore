@@ -10,3 +10,4 @@ package-lock.json
 dist
 .size-snapshot.json
 coverage
+.cache
