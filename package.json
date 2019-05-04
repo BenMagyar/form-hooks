@@ -2,10 +2,14 @@
   "name": "form-hooks",
   "version": "0.3.0",
   "description": "Easy forms in React with hooks",
-  "main": "lib/index.js",
+  "main": "dist/index.js",
+  "umd:main": "dist/form-hooks.umd.production.js",
+  "module": "dist/form-hooks.es.production.js",
+  "typings": "dist/index.d.ts",
   "scripts": {
-    "test": "jest",
-    "prepublishOnly": "rm -rf ./lib && mkdir ./lib && BABEL_ENV=commonjs babel src --out-dir lib"
+    "build": "tsdx build",
+    "start": "tsdx watch",
+    "test": "tsdx test --env=jsdom"
   },
   "repository": {
     "type": "git",
@@ -25,16 +29,33 @@
     "url": "https://github.com/BenMagyar/form-hooks/issues"
   },
   "homepage": "https://github.com/BenMagyar/form-hooks#readme",
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged"
+    }
+  },
+  "prettier": {
+    "printWidth": 80,
+    "semi": true,
+    "singleQuote": true,
+    "trailingComma": "es5"
+  },
   "devDependencies": {
-    "@babel/cli": "^7.1.2",
-    "@babel/core": "^7.1.2",
-    "@babel/plugin-proposal-object-rest-spread": "^7.0.0",
-    "@babel/preset-env": "^7.1.0",
-    "react": "^16.7.0-alpha.0",
-    "react-dom": "^16.7.0-alpha.0"
+    "@types/jest": "^24.0.12",
+    "@types/react": "^16.8.16",
+    "@types/react-dom": "^16.8.4",
+    "husky": "^2.2.0",
+    "prettier": "^1.17.0",
+    "pretty-quick": "^1.10.0",
+    "react": "^16.9.0-alpha.0",
+    "react-dom": "^16.9.0-alpha.0",
+    "react-test-renderer": "^16.9.0-alpha.0",
+    "react-testing-library": "^7.0.0",
+    "tsdx": "^0.5.6",
+    "typescript": "^3.4.5"
   },
   "peerDependencies": {
-    "react": ">=16.7.0-alpha.0",
-    "react-dom": ">=16.7.0-alpha.0"
+    "react": ">=16.8",
+    "react-dom": ">=16.8"
   }
 }
