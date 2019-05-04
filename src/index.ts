@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 const warnOnMissingName = (f: string) =>
   console.warn(`${f} called without a "name" on input`);
@@ -18,6 +18,10 @@ export type FormHookTouched<Values> = {
 export type FormHookValues = {
   [field: string]: any;
 };
+
+export type FormHookDependencies<Values> = (
+  options: FormHookOptions<Values>
+) => FormHookOptions<Values>[keyof FormHookOptions<Values>][];
 
 export interface FormHookOptions<Values> {
   /**
@@ -86,19 +90,42 @@ export interface FormHookState<Values> {
   submitCount: number;
 }
 
-export function useForm<Values>({
-  initialValues,
-  onSubmit,
-  validate,
-  validateOnBlur = true,
-  validateOnChange = true,
-}: FormHookOptions<Values>): FormHookState<Values> {
+/**
+ * Default value for form-hook dependencies
+ */
+const noDependencies = () => [];
+
+export function useForm<Values>(
+  options: FormHookOptions<Values>,
+  dependencies: FormHookDependencies<Values> = noDependencies
+): FormHookState<Values> {
+  const {
+    initialValues,
+    onSubmit,
+    validate,
+    validateOnBlur = true,
+    validateOnChange = true,
+  } = options;
+  const initialRender = useRef(true);
+
   const [errors, setErrors] = useState({});
   const [values, setValues] = useState(initialValues);
   const [touched, setTouched] = useState({});
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitCount, setSubmitCount] = useState(0);
+
+  // Reinitialize the form when a listed dependency changes
+  useEffect(() => {
+    if (!initialRender.current) {
+      setErrors({});
+      setValues(initialValues);
+      setTouched({});
+      setIsSubmitting(false);
+      setSubmitCount(0);
+    }
+    initialRender.current = false;
+  }, dependencies(options));
 
   function value(event: React.ChangeEvent<any>) {
     // normalize values as Formik would

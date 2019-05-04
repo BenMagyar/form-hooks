@@ -1,5 +1,5 @@
-import React from 'react';
-import { useForm, FormHookOptions } from '../src';
+import React, { useState } from 'react';
+import { useForm, FormHookOptions, FormHookDependencies } from '../src';
 import {
   cleanup,
   render,
@@ -16,7 +16,12 @@ interface FormValues {
   allowed: boolean;
 }
 
-const Form = (props: FormHookOptions<FormValues>) => {
+const Form = (
+  options: FormHookOptions<FormValues> & {
+    dependencies?: FormHookDependencies<FormValues>;
+  }
+) => {
+  const { dependencies = () => [], ...props } = options;
   const {
     handleBlur,
     handleChange,
@@ -25,7 +30,7 @@ const Form = (props: FormHookOptions<FormValues>) => {
     touched,
     errors,
     submitCount,
-  } = useForm<FormValues>(props);
+  } = useForm<FormValues>(props, dependencies);
 
   return (
     <form onSubmit={handleSubmit}>
@@ -474,6 +479,63 @@ describe('useForm()', () => {
       });
 
       expect(global.console.warn).toHaveBeenCalled();
+    });
+  });
+
+  describe('reinitialization', () => {
+    const Initializer = (props: {
+      dependencies?: FormHookDependencies<FormValues>;
+    }) => {
+      const [first, setFirst] = useState('John');
+
+      function change() {
+        setFirst('Wendy');
+      }
+
+      return (
+        <div>
+          <Form
+            initialValues={{
+              first,
+              last: 'Doe',
+              age: 20,
+              allowed: true,
+            }}
+            onSubmit={() => {}}
+            validate={() => ({})}
+            dependencies={props.dependencies}
+          />
+          <button data-testid="change" onClick={change}>
+            Change
+          </button>
+        </div>
+      );
+    };
+
+    it('should not re-initialize the form if there are no dependency changes', async () => {
+      const { getByTestId } = render(<Initializer />);
+
+      await act(async () => {
+        fireEvent.click(getByTestId('change'));
+      });
+
+      expect((getByTestId('first-input') as HTMLInputElement).value).toEqual(
+        'John'
+      );
+    });
+
+    it('should reinitialize the form on any dependency changes', async () => {
+      const { getByTestId } = render(
+        <Initializer dependencies={options => [options.initialValues]} />
+      );
+
+      await act(async () => {
+        fireEvent.click(getByTestId('change'));
+      });
+
+      expect((getByTestId('first-input') as HTMLInputElement).value).toEqual(
+        'Wendy'
+      );
     });
   });
 });
