@@ -21,7 +21,7 @@
     "form"
   ],
   "files": [
-    "lib"
+    "dist"
   ],
   "author": "Ben Magyar <me@benmagyar.com>",
   "license": "MIT",
