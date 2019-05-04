@@ -1,7 +1,7 @@
 import { useState } from 'react';
 
 const warnOnMissingName = (f: string) =>
-  `${f} called without a "name" on input`;
+  console.warn(`${f} called without a "name" on input`);
 
 export type FormHookErrors<Values> = {
   [Key in keyof Values]?: Values[Key] extends object
@@ -37,13 +37,13 @@ export interface FormHookOptions<Values> {
   /**
    * Indicates if the form should re-validate the input on blur.
    */
-  validateOnBlur: boolean;
+  validateOnBlur?: boolean;
   /**
    * Indicates if the form should be re-validated on input change. Only
    * fired when all fields have been touched that exist within the
    * `initialValues` object.
    */
-  validateOnChange: boolean;
+  validateOnChange?: boolean;
 }
 
 export interface FormHookState<Values> {
@@ -113,8 +113,10 @@ export function useForm<Values>({
     return value;
   }
 
-  function handleValidate() {
-    return Promise.resolve(validate(values)).then(errors => setErrors(errors));
+  function handleValidate(nextValues?: Values) {
+    return Promise.resolve(validate(nextValues || values)).then(errors =>
+      setErrors(errors)
+    );
   }
 
   function shouldValidate(touchedFields: string[]): boolean {
@@ -145,10 +147,13 @@ export function useForm<Values>({
       warnOnMissingName('handleChange');
     }
 
-    setValues({ ...values, [name]: value(event) });
+    const nextValues = { ...values, [name]: value(event) };
+    setValues(nextValues);
 
     if (validateOnChange && shouldValidate(Object.keys(touched))) {
-      handleValidate();
+      // No guarantee the update has completed, provide the values
+      // for the update instead
+      handleValidate(nextValues);
     }
   }
 
@@ -167,6 +172,7 @@ export function useForm<Values>({
         if (!Object.keys(errors).length) {
           return Promise.resolve(onSubmit(values));
         }
+        return Promise.resolve();
       })
       .then(() => setIsSubmitting(false))
       .catch(error => {
