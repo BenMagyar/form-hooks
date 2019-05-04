@@ -1,9 +1,7 @@
 # form-hooks
 
-Easily create forms in React components -- with hooks! Essentially 
-a dumbed down version of [Formik][] using hooks. There are definitely 
-some missing cases here (for instance resetting the form on value changes, 
-per field validation and React native) 🤷‍♂️.
+Easily create forms in React components -- with hooks! Essentially
+a dumbed down version of [Formik][] using hooks.
 
 ## Getting Started
 
@@ -38,15 +36,15 @@ const Sample = () => (
     return (
         <form onSubmit={handleSubmit}>
             <input name="name"
-                   type="text" 
-                   value={values.name} 
+                   type="text"
+                   value={values.name}
                    onChange={handleChange}
                    onBlur={handleBlur}
             />
             {touched['name'] && errors['name']}
             <input name="email"
-                   type="text" 
-                   value={values.email} 
+                   type="text"
+                   value={values.email}
                    onChange={handleChange}
                    onBlur={handleBlur}
             />
@@ -59,75 +57,78 @@ const Sample = () => (
 
 ## Documentation
 
-### `useForm` - `options`
+### `useForm<Values>(options: FormHookOptions): FormHookState<Values>` - `FormHookOptions`
 
-The `useForm` hook takes some options (as an object) to initialize state 
+The `useForm` hook takes some options (as an object) to initialize state
 and manage form validation/submissions.
 
-#### `initialValues`
+#### `initialValues: Values`
 
 An object with the forms initial values. These values should not be required.
 
-#### `onSubmit(values)`
+#### `onSubmit: (values: Values) => void`
 
 Called when a form is submitted with the values set. Only called if validation
-passes. 
+passes.
 
-#### `validate(values, errors)`
+#### `validate: (values: Values) => FormHookErrors<Values> | Promise<FormHookErrors<Values>>`
 
-Called when a form is submitted prior to the `onSubmit` call. Returns an object 
+Called when a form is submitted prior to the `onSubmit` call. Returns an object
 of errors similar to `Formik`.
 
-#### `validateOnBlur` - *true*
+#### `validateOnBlur: boolean` - _true_
 
 Indicates if `useForm` should re-validate the input on blur.
 Only fired when all fields have been touched that were in the `initialValues`
 object.
 
-#### `validateOnChange` - *true*
+#### `validateOnChange: boolean` - _true_
 
 Indicates if `useForm` should re-validate the input on change.
 Only fired when all fields have been touched that were in the `initialValues`
 object.
 
+### `useForm<Values>(options: FormHookOptions): FormHookState<Values>` - `FormHookState`
 
-### `useForm` - `returned`
+#### `errors: FormHookErrors<Values>`
 
-#### `errors`
-
-An object that contains the form errors where the key is the field name 
+An object that contains the form errors where the key is the field name
 and the value is the error message.
 
-#### `touched`
+#### `touched: FormHookTouched<Values>`
 
-An object that contains which form fields have been touched. The key is 
+An object that contains which form fields have been touched. The key is
 the field name, the value is a boolean of if the field has been touched.
 
-#### `values`
+#### `values: FormHookValues`
 
-An object that contains all of the values of the form. Initialized with the 
+An object that contains all of the values of the form. Initialized with the
 `initialValues` originally passed in. Modified by the `handleChange` handler.
 
-#### `handleBlur()`
+#### `handleBlur: (event: React.ChangeEvent<any>) => void`
 
 Marks a field as `touched` to show errors after all fields are touched.
 
-#### `handleChange()`
+#### `handleChange: (event: React.ChangeEvent<any>) => void`
 
 Changes the fields value in the `values` state.
 
-#### `handleSubmit(values)`
+#### `handleSubmit: (event: React.ChangeEvent<HTMLFormElement>) => Promise<void>`
 
 Handles calling validation prior to the `onSubmit` handler and setting the
 `touched`, `errors` and `isSubmitting` state internally.
 
-#### `isSubmitting`
+#### `isSubmitting: boolean`
 
 Boolean value if the form is currently submitting.
 
-#### `setErrors()`
+#### `submitCount: number`
+
+Number of times the form was submitted.
+
+#### `setErrors: (errors: FormHookErrors<Values>) => void`
 
 Function that allows for errors to be set outside of the `useForm`
 internal handlers (good for handling request errors).
 
-[Formik]: https://github.com/jaredpalmer/formik 
+[formik]: https://github.com/jaredpalmer/formik
