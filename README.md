@@ -131,10 +131,15 @@ Number of times the form was submitted.
 Function that allows for errors to be set outside of the `useForm`
 internal handlers (good for handling request errors).
 
+#### `resetForm: () => void`
+
+Resets a form to its initial state.
+
 ### `FormHookDependencies<Values>` - Form Reinitialization
 
 The second parameter to `useForm` allows for a list of dependencies to be
-declared from the collection of options passed through in the first argument. For instance in this example:
+declared from the collection of options passed through in the first argument.
+A change in a dependency will reset the form. For instance in this example:
 
 ```ts
 useForm(

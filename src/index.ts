@@ -21,7 +21,7 @@ export type FormHookValues = {
 
 export type FormHookDependencies<Values> = (
   options: FormHookOptions<Values>
-) => FormHookOptions<Values>[keyof FormHookOptions<Values>][];
+) => (FormHookOptions<Values>[keyof FormHookOptions<Values>] | any)[];
 
 export interface FormHookOptions<Values> {
   /**
@@ -81,6 +81,10 @@ export interface FormHookState<Values> {
    */
   setErrors: (errors: FormHookErrors<Values>) => void;
   /**
+   * Reset form to initial state
+   */
+  resetForm: () => void;
+  /**
    * Indicates if the form is currently submitting
    */
   isSubmitting: boolean;
@@ -115,14 +119,18 @@ export function useForm<Values>(
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitCount, setSubmitCount] = useState(0);
 
+  function resetForm() {
+    setErrors({});
+    setValues(initialValues);
+    setTouched({});
+    setIsSubmitting(false);
+    setSubmitCount(0);
+  }
+
   // Reinitialize the form when a listed dependency changes
   useEffect(() => {
     if (!initialRender.current) {
-      setErrors({});
-      setValues(initialValues);
-      setTouched({});
-      setIsSubmitting(false);
-      setSubmitCount(0);
+      resetForm();
     }
     initialRender.current = false;
   }, dependencies(options));
@@ -216,6 +224,7 @@ export function useForm<Values>(
     handleChange,
     handleSubmit,
     setErrors,
+    resetForm,
     isSubmitting,
     submitCount,
   };

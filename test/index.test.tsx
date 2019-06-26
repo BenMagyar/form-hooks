@@ -30,6 +30,7 @@ const Form = (
     touched,
     errors,
     submitCount,
+    resetForm,
   } = useForm<FormValues>(props, dependencies);
 
   return (
@@ -83,6 +84,9 @@ const Form = (
       />
       <button type="submit" data-testid="submit">
         Submit
+      </button>
+      <button type="button" data-testid="reset" onClick={resetForm}>
+        Reset
       </button>
       Attempts <div data-testid="submit-count">{submitCount}</div>
     </form>
@@ -536,6 +540,32 @@ describe('useForm()', () => {
       expect((getByTestId('first-input') as HTMLInputElement).value).toEqual(
         'Wendy'
       );
+    });
+  });
+
+  describe('resetForm()', () => {
+    it('should expose resetForm to reset all form properties', async () => {
+      const { getByTestId, queryByTestId } = render(
+        <Form
+          initialValues={{
+            first: 'John',
+            last: 'Doe',
+            age: 20,
+            allowed: true,
+          }}
+          onSubmit={() => {}}
+          validate={() => ({ first: 'Invalid Input' })}
+        />
+      );
+
+      await act(async () => {
+        fireEvent.click(getByTestId('submit'));
+        await waitForDomChange();
+        fireEvent.click(getByTestId('reset'), 'click');
+      });
+
+      expect(getByTestId('submit-count').textContent).toEqual('0');
+      expect(queryByTestId('first-errors')).toBeNull();
     });
   });
 });
