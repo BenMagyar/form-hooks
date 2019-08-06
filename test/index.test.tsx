@@ -32,9 +32,12 @@ const Form = (
     submitCount,
     resetForm,
     resetValue,
+    setTouched,
   } = useForm<FormValues>(props, dependencies);
 
   const resetFirstInput = () => resetValue('first', true);
+  const setFirstInputTouched = (touched: boolean) => () =>
+    setTouched('first', touched);
 
   return (
     <form onSubmit={handleSubmit}>
@@ -45,6 +48,7 @@ const Form = (
         value={values.first}
         data-testid="first-input"
       />
+      {touched.first && <div data-testid="first-touched">touched</div>}
       {touched.first && errors.first && (
         <div data-testid="first-errors">{errors.first}</div>
       )}
@@ -55,6 +59,7 @@ const Form = (
         value={values.last}
         data-testid="last-input"
       />
+      {touched.last && <div data-testid="last-touched">touched</div>}
       {touched.last && errors.last && (
         <div data-testid="last-errors">{errors.last}</div>
       )}
@@ -93,6 +98,20 @@ const Form = (
       </button>
       <button type="button" data-testid="reset-first" onClick={resetFirstInput}>
         Reset First Input
+      </button>
+      <button
+        type="button"
+        data-testid="untouch-first"
+        onClick={setFirstInputTouched(false)}
+      >
+        Set First Input Untouched
+      </button>
+      <button
+        type="button"
+        data-testid="touch-first"
+        onClick={setFirstInputTouched(true)}
+      >
+        Set First Input Touched
       </button>
       Attempts <div data-testid="submit-count">{submitCount}</div>
     </form>
@@ -611,9 +630,52 @@ describe('useForm()', () => {
   });
 
   describe('setTouched()', () => {
-    it('should allow for a field value to be set as touched', () => {});
+    it('should allow for a field value to be set as touched', async () => {
+      const { getByTestId, queryByTestId } = render(
+        <Form
+          initialValues={{
+            first: 'John',
+            last: 'Doe',
+            age: 20,
+            allowed: true,
+          }}
+          validateOnBlur={true}
+          onSubmit={() => {}}
+          validate={() => ({ first: 'Invalid First' })}
+        />
+      );
 
-    it('should allow for a field value to be unset as touched', () => {});
+      await act(async () => {
+        // Touch without actually causing any changes
+        fireEvent.click(getByTestId('touch-first'));
+        await waitForDomChange();
+      });
+
+      expect(queryByTestId('first-touched')).not.toBeNull();
+    });
+
+    it('should allow for a field value to be unset as touched', async () => {
+      const { getByTestId, queryByTestId } = render(
+        <Form
+          initialValues={{
+            first: 'John',
+            last: 'Doe',
+            age: 20,
+            allowed: true,
+          }}
+          onSubmit={() => {}}
+          validate={() => ({ first: 'Invalid First' })}
+        />
+      );
+
+      await act(async () => {
+        const firstInput = getByTestId('first-input');
+        fireEvent.change(firstInput, { target: { value: 'Joe' } });
+        fireEvent.click(getByTestId('untouch-first'));
+      });
+
+      expect(queryByTestId('first-touched')).toBeNull();
+    });
   });
 
   describe('setValue()', () => {
