@@ -33,9 +33,11 @@ const Form = (
     resetForm,
     resetValue,
     setTouched,
+    setValue,
   } = useForm<FormValues>(props, dependencies);
 
   const resetFirstInput = () => resetValue('first', true);
+  const setFirstInputAlfred = () => setValue('first', 'Alfred');
   const setFirstInputTouched = (touched: boolean) => () =>
     setTouched('first', touched);
 
@@ -112,6 +114,13 @@ const Form = (
         onClick={setFirstInputTouched(true)}
       >
         Set First Input Touched
+      </button>
+      <button
+        type="button"
+        data-testid="set-first-to-alfred"
+        onClick={setFirstInputAlfred}
+      >
+        Set First Value Alfred
       </button>
       Attempts <div data-testid="submit-count">{submitCount}</div>
     </form>
@@ -679,8 +688,30 @@ describe('useForm()', () => {
   });
 
   describe('setValue()', () => {
-    it('should allow for a value to be set and auto-touch the input', () => {});
+    it('should allow for a value to be set', async () => {
+      const { getByTestId } = render(
+        <Form
+          initialValues={{
+            first: 'John',
+            last: 'Doe',
+            age: 20,
+            allowed: true,
+          }}
+          onSubmit={() => {}}
+          validateOnChange={true}
+          validate={() => ({ first: 'Invalid First' })}
+        />
+      );
 
-    it('should allow for a value to be set and skip touching the input', () => {});
+      await act(async () => {
+        const firstInput = getByTestId('first-input');
+        fireEvent.change(firstInput, { target: { value: 'Joe' } });
+        fireEvent.click(getByTestId('set-first-to-alfred'));
+      });
+
+      expect((getByTestId('first-input') as HTMLInputElement).value).toEqual(
+        'Alfred'
+      );
+    });
   });
 });

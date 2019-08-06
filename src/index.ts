@@ -81,10 +81,15 @@ export interface FormHookState<Values> {
    */
   setErrors: (errors: FormHookErrors<Values>) => void;
   /**
-   * Sets the touched status on an element. Re-validates an input if setting
+   * Sets the touched status on an input. Re-validates an input if setting
    * to touched.
    */
   setTouched: (name: keyof Values, touched?: boolean) => void;
+  /**
+   * Sets the value of an input. Re-validates an input if `validateOnChange`
+   * is enabled and all requirements are met.
+   */
+  setValue: (name: keyof Values, value: any) => void;
   /**
    * Reset form to initial state
    */
@@ -154,6 +159,14 @@ export function useForm<Values>(
       if (shouldValidate([...Object.keys(_touched), name as string])) {
         handleValidate();
       }
+    }
+  }
+
+  function setValue(name: keyof Values, value: any) {
+    const nextValues = { ...values, [name]: value };
+    setValues(nextValues);
+    if (validateOnChange && shouldValidate(Object.keys(touched))) {
+      handleValidate(nextValues);
     }
   }
 
@@ -252,6 +265,7 @@ export function useForm<Values>(
     isSubmitting,
     submitCount,
     resetValue,
+    setValue,
     setTouched: setTouchedStatus,
   };
 }
