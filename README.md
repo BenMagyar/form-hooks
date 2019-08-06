@@ -131,9 +131,24 @@ Number of times the form was submitted.
 Function that allows for errors to be set outside of the `useForm`
 internal handlers (good for handling request errors).
 
+#### `setTouched: (name: keyof Values, touched?: boolean = true)`
+
+Sets a field to touched or untouched. Triggers a re-validation if
+`validateOnBlur` is enabled and all fields have been touched.
+
+#### `setValue: (name keyof Values, value: any)`
+
+Sets a fields value. Re-valdiates if `validateOnChange` is enabled and
+all required conditions are met.
+
 #### `resetForm: () => void`
 
 Resets a form to its initial state.
+
+#### `resetValue: (name: keyof Values, shouldResetTouched?: boolean = false)`
+
+Resets a field value to its initial value and resets its errors state. Can
+optionally reset its touched state.
 
 ### `FormHookDependencies<Values>` - Form Reinitialization
 

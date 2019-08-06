@@ -81,9 +81,23 @@ export interface FormHookState<Values> {
    */
   setErrors: (errors: FormHookErrors<Values>) => void;
   /**
+   * Sets the touched status on an input. Re-validates an input if setting
+   * to touched.
+   */
+  setTouched: (name: keyof Values, touched?: boolean) => void;
+  /**
+   * Sets the value of an input. Re-validates an input if `validateOnChange`
+   * is enabled and all requirements are met.
+   */
+  setValue: (name: keyof Values, value: any) => void;
+  /**
    * Reset form to initial state
    */
   resetForm: () => void;
+  /**
+   * Reset an input to its initial state, along with its error and touched state.
+   */
+  resetValue: (name: keyof Values, shouldResetTouched?: boolean) => void;
   /**
    * Indicates if the form is currently submitting
    */
@@ -119,12 +133,41 @@ export function useForm<Values>(
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitCount, setSubmitCount] = useState(0);
 
+  function resetValue(name: keyof Values, shouldResetTouched: boolean = false) {
+    const { [name]: _, ...nextErrors } = errors;
+    const nextValues = { ...values, [name]: initialValues[name] };
+    setErrors(nextErrors);
+    setValues(nextValues);
+    if (shouldResetTouched) {
+      const { [name]: __, ...nextTouched } = touched;
+      setTouched(nextTouched);
+    }
+  }
+
   function resetForm() {
     setErrors({});
     setValues(initialValues);
     setTouched({});
     setIsSubmitting(false);
     setSubmitCount(0);
+  }
+
+  const _touched = touched;
+  function setTouchedStatus(name: keyof Values, touched: boolean = true) {
+    setTouched({ ..._touched, [name]: touched });
+    if (touched && validateOnBlur) {
+      if (shouldValidate([...Object.keys(_touched), name as string])) {
+        handleValidate();
+      }
+    }
+  }
+
+  function setValue(name: keyof Values, value: any) {
+    const nextValues = { ...values, [name]: value };
+    setValues(nextValues);
+    if (validateOnChange && shouldValidate(Object.keys(touched))) {
+      handleValidate(nextValues);
+    }
   }
 
   // Reinitialize the form when a listed dependency changes
@@ -166,13 +209,7 @@ export function useForm<Values>(
       warnOnMissingName('handleBlur');
     }
 
-    setTouched({ ...touched, [name]: true });
-
-    if (validateOnBlur) {
-      if (shouldValidate([...Object.keys(touched), name])) {
-        handleValidate();
-      }
-    }
+    setTouchedStatus(name, true);
   }
 
   function handleChange(event: React.ChangeEvent<any>): void {
@@ -227,5 +264,8 @@ export function useForm<Values>(
     resetForm,
     isSubmitting,
     submitCount,
+    resetValue,
+    setValue,
+    setTouched: setTouchedStatus,
   };
 }
