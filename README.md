@@ -135,6 +135,11 @@ internal handlers (good for handling request errors).
 
 Resets a form to its initial state.
 
+#### `resetValue: (value: keyof Values, shouldResetTouched?: boolean = false)`
+
+Resets a field value to its initial value and resets its errors state. Can
+optionally reset its touched state.
+
 ### `FormHookDependencies<Values>` - Form Reinitialization
 
 The second parameter to `useForm` allows for a list of dependencies to be

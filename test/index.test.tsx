@@ -31,7 +31,10 @@ const Form = (
     errors,
     submitCount,
     resetForm,
+    resetValue,
   } = useForm<FormValues>(props, dependencies);
+
+  const resetFirstInput = () => resetValue('first', true);
 
   return (
     <form onSubmit={handleSubmit}>
@@ -87,6 +90,9 @@ const Form = (
       </button>
       <button type="button" data-testid="reset" onClick={resetForm}>
         Reset
+      </button>
+      <button type="button" data-testid="reset-first" onClick={resetFirstInput}>
+        Reset First Input
       </button>
       Attempts <div data-testid="submit-count">{submitCount}</div>
     </form>
@@ -567,5 +573,52 @@ describe('useForm()', () => {
       expect(getByTestId('submit-count').textContent).toEqual('0');
       expect(queryByTestId('first-errors')).toBeNull();
     });
+  });
+
+  describe('resetValue()', () => {
+    it('should allow for form values to be reset for specific values', async () => {
+      const { getByTestId, queryByTestId } = render(
+        <Form
+          initialValues={{
+            first: 'John',
+            last: 'Doe',
+            age: 20,
+            allowed: true,
+          }}
+          onSubmit={() => {}}
+          validate={() => ({ first: 'Invalid Input', last: 'Invalid Last' })}
+        />
+      );
+
+      await act(async () => {
+        const firstInput = getByTestId('first-input');
+        const lastInput = getByTestId('last-input');
+        const submitButton = getByTestId('submit');
+        const resetFirstButton = getByTestId('reset-first');
+        fireEvent.change(firstInput, { target: { value: 'Joe' } });
+        fireEvent.blur(firstInput);
+        fireEvent.change(lastInput, { target: { value: 'Doe' } });
+        fireEvent.blur(lastInput);
+        fireEvent.click(submitButton);
+        await waitForDomChange();
+        fireEvent.click(resetFirstButton);
+      });
+
+      expect(getByTestId('submit-count').textContent).toEqual('1');
+      expect(queryByTestId('first-errors')).toBeNull();
+      expect(queryByTestId('last-errors')).not.toBeNull();
+    });
+  });
+
+  describe('setTouched()', () => {
+    it('should allow for a field value to be set as touched', () => {});
+
+    it('should allow for a field value to be unset as touched', () => {});
+  });
+
+  describe('setValue()', () => {
+    it('should allow for a value to be set and auto-touch the input', () => {});
+
+    it('should allow for a value to be set and skip touching the input', () => {});
   });
 });

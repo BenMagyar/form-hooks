@@ -85,6 +85,10 @@ export interface FormHookState<Values> {
    */
   resetForm: () => void;
   /**
+   * Reset a value to its initial state, along with its error and touched state.
+   */
+  resetValue: (value: keyof Values, shouldResetTouched?: boolean) => void;
+  /**
    * Indicates if the form is currently submitting
    */
   isSubmitting: boolean;
@@ -118,6 +122,20 @@ export function useForm<Values>(
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitCount, setSubmitCount] = useState(0);
+
+  function resetValue(
+    value: keyof Values,
+    shouldResetTouched: boolean = false
+  ) {
+    const { [value]: _, ...nextErrors } = errors;
+    const nextValues = { ...values, [value]: initialValues[value] };
+    setErrors(nextErrors);
+    setValues(nextValues);
+    if (shouldResetTouched) {
+      const { [value]: __, ...nextTouched } = touched;
+      setTouched(nextTouched);
+    }
+  }
 
   function resetForm() {
     setErrors({});
@@ -227,5 +245,6 @@ export function useForm<Values>(
     resetForm,
     isSubmitting,
     submitCount,
+    resetValue,
   };
 }
