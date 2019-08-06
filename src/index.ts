@@ -218,15 +218,8 @@ export function useForm<Values>(
     if (!name) {
       warnOnMissingName('handleChange');
     }
-
-    const nextValues = { ...values, [name]: value(event) };
-    setValues(nextValues);
-
-    if (validateOnChange && shouldValidate(Object.keys(touched))) {
-      // No guarantee the update has completed, provide the values
-      // for the update instead
-      handleValidate(nextValues);
-    }
+    
+    setValue(name, value(event));
   }
 
   function handleSubmit(event: React.ChangeEvent<any>): Promise<void> {
